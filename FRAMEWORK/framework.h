@@ -10,6 +10,7 @@ public:
 	void onLeftMouseClick(int x, int y);
 	void onRightMouseClick(int x, int y);
 	void onKeyboardEvent();
+	void onEnterKey();
 	void update();
 	void init();
 

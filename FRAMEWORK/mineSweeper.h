@@ -31,6 +31,8 @@ public:
 	~field();
 	cell& getCell(int x, int y);
 	void replaceBomb(int nbxcell, int nbycell, int nbBomb);
+	void maskAndDeflagAll();
+	void revealAll();
 private:
 	int xcell, ycell;
 	cell* tab;
@@ -43,9 +45,10 @@ public:
 	void draw();
 	void onLeftMouseClick(int x, int y);
 	void onRightMouseClick(int x, int y);
+	void startNewGame();
 private:
 	void revealSurrounding(int xcell, int ycell);
-	int x, y;
+	int xpos, ypos;
 	int width, height;
 	int cellwidth, cellheight;
 	int xcell, ycell;
@@ -57,6 +60,7 @@ private:
 
 	image flag;
 	image bomb;
+	image over;
 	image hidecase;
 	image revealedcase;
 	image case1;

@@ -1,7 +1,7 @@
 #include "framework.h"
 
 
-framework::framework() : fx(), mb(&fx), ms(0,0,1600, 800, &fx, 0.15f)
+framework::framework() : fx(), mb(&fx), ms(100,100,1600, 800, &fx, 0.13f)
 {
 
 }
@@ -9,8 +9,9 @@ framework::framework() : fx(), mb(&fx), ms(0,0,1600, 800, &fx, 0.15f)
 void framework::onMouseEvent(int x, int y)
 {
     //mb.drawCircle(x, y, 5, { 255,255,255 });
-   
 }
+
+
 
 void framework::onLeftMouseClick(int x, int y)
 {
@@ -24,6 +25,11 @@ void framework::onRightMouseClick(int x, int y)
 
 void framework::onKeyboardEvent()
 {
+}
+
+void framework::onEnterKey()
+{
+    ms.startNewGame();
 }
 
 void framework::update()

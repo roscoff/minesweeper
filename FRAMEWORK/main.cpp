@@ -3,7 +3,6 @@
 
 framework fw;
 HWND hwnd;
-bool mouseclick = false;
 
 LRESULT APIENTRY WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
@@ -19,6 +18,11 @@ LRESULT APIENTRY WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPara
         fw.onResize(width, height);
         }
         break;
+    case WM_KEYDOWN:
+        if (wParam == VK_RETURN) {
+            fw.onEnterKey();
+        }
+        break;
     case WM_DESTROY:
         PostQuitMessage(0);
         break;
@@ -30,15 +34,9 @@ LRESULT APIENTRY WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPara
         break;
     case WM_LBUTTONDOWN:
         fw.onLeftMouseClick(LOWORD(lParam), HIWORD(lParam));
-        mouseclick = true;
-        break;
-    case WM_LBUTTONUP:
-        mouseclick = false;
         break;
     case WM_MOUSEMOVE:
-        if (mouseclick) {
-            fw.onMouseEvent(LOWORD(lParam), HIWORD(lParam));
-        }
+        fw.onMouseEvent(LOWORD(lParam), HIWORD(lParam));
         break;
     }
 

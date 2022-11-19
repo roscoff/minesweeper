@@ -63,6 +63,23 @@ void field::replaceBomb(int nbxcell, int nbycell, int nbBomb){
 	}*/
 }
 
+void field::maskAndDeflagAll(){
+	for (int y = 0; y < ycell; y++) {
+		for (int x = 0; x < xcell; x++) {
+			getCell(x, y).hide();
+			getCell(x, y).removeFlag();
+		}
+	}
+}
+
+void field::revealAll(){
+	for (int y = 0; y < ycell; y++) {
+		for (int x = 0; x < xcell; x++) {
+			getCell(x, y).reveal();
+		}
+	}
+}
+
 cell::cell():mined(false), breveal(false), flaged(false), nbBombAround(0) {
 }
 
@@ -113,7 +130,7 @@ int cell::getNbBomb(){
 }
 
 mineSweeper::mineSweeper(int x, int y, int width, int height, graphics* gfx, float bombDensity) :
-	x(x), y(y),
+	xpos(x), ypos(y),
 	width(width), height(height),
 	cellwidth(30), cellheight(30),
 	xcell(width / cellwidth), ycell(height / cellheight),
@@ -125,6 +142,7 @@ mineSweeper::mineSweeper(int x, int y, int width, int height, graphics* gfx, flo
 {
 	flag.loadImage("images/minesweeper/flag.bmp");
 	bomb.loadImage("images/minesweeper/bomb.bmp");
+	over.loadImage("images/minesweeper/over.bmp");
 	hidecase.loadImage("images/minesweeper/case.bmp");
 	revealedcase.loadImage("images/minesweeper/caseempty.bmp");
 	case1.loadImage("images/minesweeper/case1.bmp");
@@ -143,64 +161,74 @@ mineSweeper::~mineSweeper()
 
 void mineSweeper::draw()
 {
+	if (gameOver) {
+		fld.revealAll();
+	}
 	for (int y = 0; y < ycell; y++) {
 		for (int x = 0; x < xcell; x++) {
 			int nbb = fld.getCell(x, y).getNbBomb();
 			bool hasbomb = fld.getCell(x, y).hasBomb();
 			bool flaged = fld.getCell(x, y).isFlaged();
 			bool revealed = fld.getCell(x, y).revealed();
-
+			int xcoord = x * cellwidth + xpos;
+			int ycoord = y * cellheight + ypos;
 			if (revealed) {
 				if (hasbomb) {
-					gfx->drawImage(bomb, x * cellwidth, y * cellheight, cellwidth, cellheight);
+					gfx->drawImage(bomb, xcoord, ycoord, cellwidth, cellheight);
 				}
 				else {
 					switch (nbb)
 					{
 					case 1:
-						gfx->drawImage(case1, x * cellwidth, y * cellheight, cellwidth, cellheight);
+						gfx->drawImage(case1, xcoord, ycoord, cellwidth, cellheight);
 						break;
 					case 2:
-						gfx->drawImage(case2, x * cellwidth, y * cellheight, cellwidth, cellheight);
+						gfx->drawImage(case2, xcoord, ycoord, cellwidth, cellheight);
 						break;
 					case 3:
-						gfx->drawImage(case3, x * cellwidth, y * cellheight, cellwidth, cellheight);
+						gfx->drawImage(case3, xcoord, ycoord, cellwidth, cellheight);
 						break;
 					case 4:
-						gfx->drawImage(case4, x * cellwidth, y * cellheight, cellwidth, cellheight);
+						gfx->drawImage(case4, xcoord, ycoord, cellwidth, cellheight);
 						break;
 					case 5:
-						gfx->drawImage(case5, x * cellwidth, y * cellheight, cellwidth, cellheight);
+						gfx->drawImage(case5, xcoord, ycoord, cellwidth, cellheight);
 						break;
 					case 6:
-						gfx->drawImage(case6, x * cellwidth, y * cellheight, cellwidth, cellheight);
+						gfx->drawImage(case6, xcoord, ycoord, cellwidth, cellheight);
 						break;
 					case 7:
-						gfx->drawImage(case7, x * cellwidth, y * cellheight, cellwidth, cellheight);
+						gfx->drawImage(case7, xcoord, ycoord, cellwidth, cellheight);
 						break;
 					case 8:
-						gfx->drawImage(case8, x * cellwidth, y * cellheight, cellwidth, cellheight);
+						gfx->drawImage(case8, xcoord, ycoord, cellwidth, cellheight);
 						break;
 					default:
-						gfx->drawImage(revealedcase, x * cellwidth, y * cellheight, cellwidth, cellheight);
+						gfx->drawImage(revealedcase, xcoord, ycoord, cellwidth, cellheight);
 						break;
 					}
 				}
 			}
 			else {
-				if (flaged) gfx->drawImage(flag, x * cellwidth, y * cellheight, cellwidth, cellheight);
-				else gfx->drawImage(hidecase, x * cellwidth, y * cellheight, cellwidth, cellheight);
+				if (flaged) gfx->drawImage(flag, xcoord, ycoord, cellwidth, cellheight);
+				else gfx->drawImage(hidecase, xcoord, ycoord, cellwidth, cellheight);
 			}
 		}
 	}
+
+	if (gameOver) {
+		gfx->drawImage(over, xcell*cellwidth/2.0f - over.getWidth()/2.0f + xpos, ycell * cellheight / 2.0f - over.getHeight() / 2.0f + ypos, over.getWidth(), over.getHeight());
+	}
 }
 
-void mineSweeper::onLeftMouseClick(int xpos, int ypos)
+void mineSweeper::onLeftMouseClick(int mouseX, int mouseY)
 {
 	if (!gameOver) {
-		if (x <= xpos && xpos < xcell * cellwidth && y <= ypos && ypos < ycell * cellheight) {
-			int xc = (xpos - x) / cellwidth;
-			int yc = (ypos - y) / cellheight;
+		mouseX -= xpos;
+		mouseY -= ypos;
+		if (0 <= mouseX && mouseX < xcell * cellwidth && 0 <= mouseY && mouseY < ycell * cellheight) {
+			int xc = (mouseX) / cellwidth;
+			int yc = (mouseY) / cellheight;
 			cell* c = &fld.getCell(xc, yc);
 			if (firstClick) {
 				while (fld.getCell(xc, yc).getNbBomb() != 0) {
@@ -225,11 +253,13 @@ void mineSweeper::onLeftMouseClick(int xpos, int ypos)
 	draw();
 }
 
-void mineSweeper::onRightMouseClick(int xpos, int ypos){
+void mineSweeper::onRightMouseClick(int mouseX, int mouseY){
 	if (!gameOver) {
-		if (x <= xpos && xpos < xcell * cellwidth && y <= ypos && ypos < ycell * cellheight) {
-			int xcell = (xpos - x) / cellwidth;
-			int ycell = (ypos - y) / cellheight;
+		mouseX -= xpos;
+		mouseY -= ypos;
+		if (0 <= mouseX && mouseX < xcell * cellwidth && 0 <= mouseY && mouseY < ycell * cellheight) {
+			int xcell = (mouseX) / cellwidth;
+			int ycell = (mouseY) / cellheight;
 			cell* c = &fld.getCell(xcell, ycell);
 			if (!c->revealed()) {
 				if (c->isFlaged()) {
@@ -241,6 +271,15 @@ void mineSweeper::onRightMouseClick(int xpos, int ypos){
 			}
 		}
 	}
+	draw();
+}
+
+void mineSweeper::startNewGame()
+{
+	gameOver = false;
+	firstClick = true;
+	fld.replaceBomb(xcell, ycell, xcell*ycell*bombDensity);
+	fld.maskAndDeflagAll();
 	draw();
 }
 
