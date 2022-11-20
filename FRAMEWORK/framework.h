@@ -11,6 +11,7 @@ public:
 	void onRightMouseClick(int x, int y);
 	void onKeyboardEvent();
 	void onEnterKey();
+	void setRedraw();
 	void update();
 	void init();
 

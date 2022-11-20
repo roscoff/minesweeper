@@ -1,7 +1,7 @@
 #pragma once
 #include "graphics.h"
 #include "image.h"
-
+#include "timer.h"
 
 class cell {
 public:
@@ -45,6 +45,8 @@ public:
 	void draw();
 	void onLeftMouseClick(int x, int y);
 	void onRightMouseClick(int x, int y);
+	bool needRedraw();
+	void setRedraw();
 	void startNewGame();
 private:
 	void revealSurrounding(int xcell, int ycell);
@@ -55,8 +57,10 @@ private:
 	bool firstClick;
 	float bombDensity;
 	bool gameOver;
+	bool bneedRedraw;
 	graphics* gfx;
 	field fld;
+	timer timeSinceGameOver;
 
 	image flag;
 	image bomb;

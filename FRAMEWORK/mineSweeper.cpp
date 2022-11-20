@@ -121,11 +121,11 @@ void cell::hide()
 	breveal = false;
 }
 
-void cell::setNbBomb(int bomb){
+void cell::setNbBomb(int bomb) {
 	nbBombAround = bomb;
 }
 
-int cell::getNbBomb(){
+int cell::getNbBomb() {
 	return nbBombAround;
 }
 
@@ -137,8 +137,9 @@ mineSweeper::mineSweeper(int x, int y, int width, int height, graphics* gfx, flo
 	firstClick(true),
 	bombDensity(bombDensity),
 	gameOver(false),
+	bneedRedraw(true),
 	gfx(gfx),
-	fld(xcell, ycell, int(xcell* ycell * bombDensity))
+	fld(xcell, ycell, int(xcell* ycell* bombDensity))
 {
 	flag.loadImage("images/minesweeper/flag.bmp");
 	bomb.loadImage("images/minesweeper/bomb.bmp");
@@ -161,7 +162,7 @@ mineSweeper::~mineSweeper()
 
 void mineSweeper::draw()
 {
-	if (gameOver) {
+	if (gameOver && timeSinceGameOver.getTime() > 0.5f) {
 		fld.revealAll();
 	}
 	for (int y = 0; y < ycell; y++) {
@@ -216,8 +217,15 @@ void mineSweeper::draw()
 		}
 	}
 
-	if (gameOver) {
-		gfx->drawImage(over, xcell*cellwidth/2.0f - over.getWidth()/2.0f + xpos, ycell * cellheight / 2.0f - over.getHeight() / 2.0f + ypos, over.getWidth(), over.getHeight());
+	if (gameOver && timeSinceGameOver.getTime() > 1.5f) {
+		gfx->drawImage(over, xcell * cellwidth / 2.0f - over.getWidth() / 2.0f + xpos, ycell * cellheight / 2.0f - over.getHeight() / 2.0f + ypos, over.getWidth(), over.getHeight());
+	}
+
+	if (gameOver && timeSinceGameOver.getTime() < 1.5f){
+		bneedRedraw = true;
+	}
+	else {
+		bneedRedraw = false;
 	}
 }
 
@@ -245,12 +253,13 @@ void mineSweeper::onLeftMouseClick(int mouseX, int mouseY)
 					c->reveal();
 					if (c->hasBomb()) {
 						gameOver = true;
+						timeSinceGameOver.start();
 					}
 				}
 			}
 		}
 	}
-	draw();
+	bneedRedraw = true;
 }
 
 void mineSweeper::onRightMouseClick(int mouseX, int mouseY){
@@ -271,7 +280,16 @@ void mineSweeper::onRightMouseClick(int mouseX, int mouseY){
 			}
 		}
 	}
-	draw();
+	bneedRedraw = true;
+}
+
+bool mineSweeper::needRedraw()
+{
+	return bneedRedraw;
+}
+
+void mineSweeper::setRedraw(){
+	bneedRedraw = true;
 }
 
 void mineSweeper::startNewGame()
@@ -280,7 +298,7 @@ void mineSweeper::startNewGame()
 	firstClick = true;
 	fld.replaceBomb(xcell, ycell, xcell*ycell*bombDensity);
 	fld.maskAndDeflagAll();
-	draw();
+	bneedRedraw = true;
 }
 
 void mineSweeper::revealSurrounding(int xc, int yc)

@@ -25,6 +25,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="meshBuilder.cpp" />
     <ClCompile Include="mineSweeper.cpp" />
+    <ClCompile Include="timer.cpp" />
     <ClCompile Include="utilities.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -33,6 +34,7 @@
     <ClInclude Include="image.h" />
     <ClInclude Include="meshBuilder.h" />
     <ClInclude Include="mineSweeper.h" />
+    <ClInclude Include="timer.h" />
     <ClInclude Include="utilities.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

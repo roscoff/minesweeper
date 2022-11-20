@@ -32,6 +32,11 @@ void framework::onEnterKey()
     ms.startNewGame();
 }
 
+void framework::setRedraw()
+{
+    ms.setRedraw();
+}
+
 void framework::update()
 {
     int w = fx.getWidth(), h = fx.getHeight();
@@ -59,16 +64,18 @@ void framework::update()
 
 void framework::init()
 {
-    ms.draw();
 }
 
 void framework::onResize(int width, int height, color clearColor)
 {
     fx.onResize(width, height, clearColor);
-    ms.draw();
+    setRedraw();
 }
 
 void framework::draw(HWND hWnd)
 {
-    fx.draw(hWnd);
+    if (ms.needRedraw()) {
+        ms.draw();
+        fx.draw(hWnd);
+    }
 }
